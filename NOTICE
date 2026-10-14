@@ -1,0 +1,5 @@
+Henkan DX includes Mozc, Copyright Google Inc., distributed under the BSD
+3-Clause license reproduced in third_party/mozc/LICENSE
+
+The Mozc dictionary and data files have their own licenses, see
+third_party/mozc/src/data/dictionary_oss/README.txt

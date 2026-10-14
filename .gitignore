@@ -1,0 +1,8 @@
+.gradle/
+.kotlin/
+build/
+engine/mozc/out/
+/result*
+__pycache__/
+*.jks
+*.keystore

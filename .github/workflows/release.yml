@@ -1,0 +1,73 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: free disk
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL "$ANDROID_HOME/ndk"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - id: mozc
+        run: echo "sha=$(git -C third_party/mozc rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/bazel
+            third_party/mozc/src/third_party/ndk
+          key: mozc-${{ steps.mozc.outputs.sha }}
+
+      - run: engine/mozc/build.sh
+
+      - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: build
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          export KEYSTORE="$RUNNER_TEMP/release.jks"
+          base64 -d <<<"$KEYSTORE_B64" > "$KEYSTORE"
+          ./gradlew assembleRelease
+          rm "$KEYSTORE"
+
+      - name: verify
+        run: |
+          cd app/build/outputs/apk/release
+          for apk in ./*.apk; do "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify "$apk"; done
+          sha256sum -- *.apk > SHA256SUMS
+
+      - name: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=${TAG#v}
+          flags=()
+          [[ $version == 0.0.* ]] && flags+=(--prerelease)
+          gh release create "$TAG" "${flags[@]}" --title "$TAG" --generate-notes \
+            app/build/outputs/apk/release/*.apk app/build/outputs/apk/release/SHA256SUMS

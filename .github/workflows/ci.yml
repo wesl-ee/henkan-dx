@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: free disk
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL "$ANDROID_HOME/ndk"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - id: mozc
+        run: echo "sha=$(git -C third_party/mozc rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/bazel
+            third_party/mozc/src/third_party/ndk
+          key: mozc-${{ steps.mozc.outputs.sha }}
+
+      - run: engine/mozc/build.sh
+
+      - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - run: ./gradlew :core:test lint assembleDebug
+
+      - name: ktlint
+        run: |
+          curl -sSLo ktlint https://github.com/ktlint/ktlint/releases/download/1.8.0/ktlint
+          echo "a3fd620207d5c40da6ca789b95e7f823c54e854b7fade7f613e91096a3706d75  ktlint" | sha256sum -c
+          chmod +x ktlint
+          ./ktlint '**/*.kt' '**/*.kts' '!**/build/**' '!third_party/**'
+
+      - name: privacy
+        run: |
+          aapt2="$ANDROID_HOME/build-tools/37.0.0/aapt2"
+          for apk in app/build/outputs/apk/debug/*.apk; do
+            if "$aapt2" dump permissions "$apk" | grep uses-permission; then exit 1; fi
+          done
+          if git grep -nE '\bLog\.[a-z]+\(|android\.util\.Log' -- '*.kt'; then exit 1; fi
+
+      - name: size
+        run: |
+          echo '| APK | bytes |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---:|' >> "$GITHUB_STEP_SUMMARY"
+          for apk in app/build/outputs/apk/debug/*.apk; do
+            echo "| $(basename "$apk") | $(stat -c %s "$apk") |" >> "$GITHUB_STEP_SUMMARY"
+          done

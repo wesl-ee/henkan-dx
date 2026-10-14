@@ -1,0 +1,18 @@
+{
+  "device": "TitanKey",
+  "keycodes": {
+    "KEYCODE_SHIFT_RIGHT": "Lang"
+  },
+  "scancodes": {
+    "251": "Ctrl",
+    "253": "Sym"
+  },
+  "nav": {
+    "KEYCODE_E": "KEYCODE_DPAD_UP",
+    "KEYCODE_S": "KEYCODE_DPAD_LEFT",
+    "KEYCODE_D": "KEYCODE_DPAD_DOWN",
+    "KEYCODE_F": "KEYCODE_DPAD_RIGHT",
+    "KEYCODE_Q": "KEYCODE_ESCAPE"
+  },
+  "register": "KEYCODE_B"
+}
