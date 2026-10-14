@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Henkan DX</string>
+    <string name="subtype_ja">日本語</string>
+    <string name="subtype_en">English (US)</string>
+    <string name="keyboard_settings">Open Keyboard Settings</string>
+    <string name="learn">Learning from my typing</string>
+    <string name="learn_note">Password fields are never learned from.</string>
+    <string name="forget">Erase all keyboard learning</string>
+    <string name="forget_confirm">Are you sure you want to erase everything the Japanese keyboard has learned (its conversion history)?</string>
+    <string name="dictionary">User Dictionary</string>
+    <string name="reading">Reading</string>
+    <string name="word">Word</string>
+    <string name="add">Add to User Dictionary</string>
+    <string name="import_words">Import</string>
+    <string name="export_words">Export</string>
+    <string name="remove_confirm">Are you sure you want to remove %1$s from your user dictionary?</string>
+</resources>

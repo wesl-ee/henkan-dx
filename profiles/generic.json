@@ -1,0 +1,11 @@
+{
+  "keycodes": {
+    "KEYCODE_SHIFT_LEFT": "Shift",
+    "KEYCODE_SHIFT_RIGHT": "Shift",
+    "KEYCODE_ALT_LEFT": "Alt",
+    "KEYCODE_ALT_RIGHT": "Alt",
+    "KEYCODE_CTRL_LEFT": "Ctrl",
+    "KEYCODE_CTRL_RIGHT": "Ctrl",
+    "KEYCODE_SYM": "Sym"
+  }
+}
