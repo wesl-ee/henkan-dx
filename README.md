@@ -37,12 +37,9 @@ pre-release.
 
 ## Tech
 
-- Japanese conversion is Mozc, the open-source engine behind Google Japanese Input, used unpatched from upstream
-- Mozc is built from source with Bazel into libmozc.so and its dictionary data mozc.data
-- The app communicates with Mozc over JNI by issuing protobuf commands and reading their protobuf output.
-- Mozc runs with its desktop MS-IME style keymap so Space converts and Shift+arrows resize clauses
+- Japanese conversion is Mozc
+- Mozc runs with its desktop MS-IME style keymap
 - Kotlin with plain Android Views and no AndroidX
-- Key handling, modifiers, profiles and the privacy policy live in a pure Kotlin core module with unit tests
 
 ## Building
 
