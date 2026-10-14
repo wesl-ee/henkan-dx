@@ -14,12 +14,23 @@ I use a Unihertz Titan Elite 2 and have access to a Titan Pocket so support for
 these phones is first-class. Everything else is best-effort. Software is
 pre-release.
 
+## Installing
+
+1. Download app-arm64-v8a-release.apk from the
+   [latest release](https://github.com/wesl-ee/henkan-dx/releases) (Android
+   8.0 or newer). Check it against SHA256SUMS if you like
+2. Open the APK and allow your browser or file manager to install apps
+3. Open Henkan DX, tap Open Keyboard Settings and enable Henkan DX
+4. Pick Henkan DX as your keyboard from the switcher in the navigation bar or
+   notification shade
+
 ## Keys
 
 - Right shift switches between あ and A (Ctrl+Space on those without right shift)
-- Space converts and steps through candidates
+- Space picks from the suggestions on the bar, or converts and steps through candidates
 - Shift+Space will convert clause by clause
 - Enter commits text
+- Shift, Alt and Fn are sticky: tap once for the next key, twice quickly to lock
 - The number keys on the Alt layer, or a tap on the bar, pick a candidate
 - Fn with E, S, D and F are arrow keys
 - While converting, Fn+S and Fn+F (left + right) move between clauses
