@@ -2,14 +2,15 @@ package ee.wesl.henkandx
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 
 class PacksActivity : Activity() {
     private lateinit var column: LinearLayout
@@ -39,10 +40,10 @@ class PacksActivity : Activity() {
                     gravity = Gravity.CENTER_VERTICAL
                     setPadding(0, pad / 2, 0, pad / 2)
                     addView(
-                        CheckBox(context).apply {
-                            isChecked = installed
-                            isClickable = false
-                            isFocusable = false
+                        TextView(context).apply {
+                            setText(if (installed) R.string.installed else R.string.not_installed)
+                            if (!installed) setTextColor(Color.GRAY)
+                            width = paint.measureText(getString(R.string.not_installed)).toInt() + pad
                         },
                     )
                     addView(
