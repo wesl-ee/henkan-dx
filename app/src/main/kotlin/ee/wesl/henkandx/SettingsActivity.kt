@@ -75,7 +75,6 @@ class SettingsActivity : Activity() {
                 setOnCheckedChangeListener { _, on -> thread { mozc.incognito = !on } }
             },
         )
-        column.addView(TextView(this).apply { setText(R.string.learn_note) })
         column.addView(
             button(R.string.forget) {
                 confirm(getString(R.string.forget_confirm)) {
