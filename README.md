@@ -1,6 +1,6 @@
 # Henkan DX (変換DX)
 
-CJK input for physical keyboards on Android phones
+Japanese input for physical keyboards on Android phones
 
 <p align="center">
   <img src="screenshot.jpeg" alt="Henkan DX on a Titan 2 typing English and Japanese in a Google Keep note." width="45%" hspace="8">
@@ -26,18 +26,36 @@ pre-release.
 
 ## Keys
 
-- Right shift switches between あ and A (Ctrl+Space on those without right shift)
-- Space picks from the suggestions on the bar, or converts and steps through candidates
-- Shift+Space will convert clause by clause
-- Enter commits text
-- Shift, Alt and Fn are sticky: tap once for the next key, twice quickly to lock
-- The number keys on the Alt layer, or a tap on the bar, pick a candidate
-- Fn with E, S, D and F are arrow keys
-- While converting, Fn+S and Fn+F (left + right) move between clauses
-- Shorten or lengthen clause by pressing Shift+S or Shift+F
-- Fn+Q cancels the conversion.
-- Sym opens the symbol page
-- Press Fn+B to add the word you are typing to your user dictionary
+Input is romaji-based, ALT will input the secondary symbol printed on the key.
+Other symbols are accessible with the "Sym" key.
+
+| Key                 | Action                                   |
+|---------------------|------------------------------------------|
+| Space               | Pick a suggestion, or convert and cycle  |
+| ⇧+Space             | Convert clause by clause                 |
+| Enter               | Commit                                   |
+| alt+1–9, or tap bar | Pick a candidate                         |
+| fn+E/S/D/F          | Arrow keys                               |
+| fn+S/F              | Previous/next clause, while converting   |
+| ⇧+S/F               | Shorten/lengthen clause                  |
+| fn+Q                | Cancel conversion                        |
+| fn+B                | Add word to user dictionary              |
+| Sym                 | Symbol page                              |
+
+⇧, alt and fn are sticky: tap once for the next key and twice to lock.
+
+### Titan 2
+
+- Right ⇧ switches between あ and A
+
+### Titan Pocket
+
+- fn+Space switches between あ and A
+
+### Other keyboards
+
+- Ctrl+Space switches between あ and A
+- There are no fn shortcuts yet. Use the arrow keys if your keyboard has them
 
 ## Privacy
 

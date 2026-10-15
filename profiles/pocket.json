@@ -1,0 +1,14 @@
+{
+  "device": "aw9523-key",
+  "scancodes": {
+    "183": "Ctrl"
+  },
+  "nav": {
+    "KEYCODE_E": "KEYCODE_DPAD_UP",
+    "KEYCODE_S": "KEYCODE_DPAD_LEFT",
+    "KEYCODE_D": "KEYCODE_DPAD_DOWN",
+    "KEYCODE_F": "KEYCODE_DPAD_RIGHT",
+    "KEYCODE_Q": "KEYCODE_ESCAPE"
+  },
+  "register": "KEYCODE_B"
+}
