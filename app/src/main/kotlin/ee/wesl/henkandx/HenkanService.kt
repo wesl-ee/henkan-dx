@@ -197,8 +197,10 @@ class HenkanService : InputMethodService() {
                 KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_DEL -> true.also { sym.close() }
 
                 else -> sym.pick(event.keyCharacterMap.get(keyCode, 0).toChar())?.also {
-                    flush()
-                    editor.commit(it)
+                    engine?.takeIf { kana }?.send(Stroke.Char(it.codePointAt(0)))?.let(::render) ?: run {
+                        flush()
+                        editor.commit(it)
+                    }
                 } != null
             }
             if (handled) return consume(keyCode)
