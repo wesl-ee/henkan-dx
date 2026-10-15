@@ -54,7 +54,7 @@ jobs:
       - name: privacy
         run: |
           aapt2="$ANDROID_HOME/build-tools/37.0.0/aapt2"
-          for apk in app/build/outputs/apk/debug/*.apk; do
+          for apk in {app,packs/ja}/build/outputs/apk/debug/*.apk; do
             if "$aapt2" dump permissions "$apk" | grep uses-permission; then exit 1; fi
           done
           if git grep -nE '\bLog\.[a-z]+\(|android\.util\.Log' -- '*.kt'; then exit 1; fi
@@ -63,6 +63,6 @@ jobs:
         run: |
           echo '| APK | bytes |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---:|' >> "$GITHUB_STEP_SUMMARY"
-          for apk in app/build/outputs/apk/debug/*.apk; do
+          for apk in {app,packs/ja}/build/outputs/apk/debug/*.apk; do
             echo "| $(basename "$apk") | $(stat -c %s "$apk") |" >> "$GITHUB_STEP_SUMMARY"
           done

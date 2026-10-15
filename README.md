@@ -16,13 +16,14 @@ pre-release.
 
 ## Installing
 
-1. Download app-arm64-v8a-release.apk from the
+1. Download ee.wesl.henkandx.apk from the
    [latest release](https://github.com/wesl-ee/henkan-dx/releases) (Android
    8.0 or newer). Check it against SHA256SUMS if you like
 2. Open the APK and allow your browser or file manager to install apps
 3. Open Henkan DX, tap Open Keyboard Settings and enable Henkan DX
 4. Pick Henkan DX as your keyboard from the switcher in the navigation bar or
    notification shade
+5. Open Henkan DX, tap Get the Japanese Language Pack and install that APK too.
 
 ## Keys
 

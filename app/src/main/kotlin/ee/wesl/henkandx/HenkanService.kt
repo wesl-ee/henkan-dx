@@ -37,6 +37,7 @@ class HenkanService : InputMethodService() {
     private lateinit var profile: Profile
     private var strip: Strip? = null
     private var engine: Engine? = null
+    private var loading = false
     private var japanese = true
     private var field = Field.Latin
     private var composing = false
@@ -51,9 +52,19 @@ class HenkanService : InputMethodService() {
         super.onCreate()
         profile = loadProfile(this)
         sym = Sym(assets.open("sym.txt").bufferedReader().use { it.readText() }.trim().split("\n\n").map { it.lines() })
+        load()
+    }
+
+    private fun load() {
+        if (engine != null || loading) return
+        loading = true
         thread(name = "mozc") {
-            val mozc = runCatching { MozcEngine(Mozc.get(this)) }.getOrNull()
-            Handler(Looper.getMainLooper()).post { engine = mozc }
+            val mozc = runCatching { Mozc.get(this)?.let(::MozcEngine) }.getOrNull()
+            Handler(Looper.getMainLooper()).post {
+                engine = mozc
+                loading = false
+                refresh()
+            }
         }
     }
 
@@ -90,6 +101,7 @@ class HenkanService : InputMethodService() {
             else -> Field.Latin
         }
         if (type != InputType.TYPE_NULL && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) requestShowSelf(0)
+        load()
         refresh()
     }
 
@@ -275,7 +287,7 @@ class HenkanService : InputMethodService() {
     }
 
     private fun refresh() {
-        strip?.show(modifiers, if (field == Field.Kana && !japanese) Field.Latin.label else field.label, page, sym.grid)
+        strip?.show(modifiers, if (field == Field.Kana && (!japanese || engine == null)) Field.Latin.label else field.label, page, sym.grid)
     }
 
     private companion object {

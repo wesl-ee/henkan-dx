@@ -57,6 +57,6 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   installPhase = ''
-    install -Dm644 -t $out app/build/outputs/apk/release/*.apk
+    install -Dm644 -t $out app/build/outputs/apk/release/*.apk packs/ja/build/outputs/apk/release/*.apk
   '';
 })

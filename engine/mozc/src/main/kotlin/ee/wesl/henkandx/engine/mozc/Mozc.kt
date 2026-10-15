@@ -1,6 +1,7 @@
 package ee.wesl.henkandx.engine.mozc
 
 import android.content.Context
+import android.content.pm.PackageManager
 import com.google.android.apps.inputmethod.libs.mozc.session.MozcJni
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Command
 import org.mozc.android.inputmethod.japanese.protobuf.ProtoCommands.Input
@@ -31,15 +32,23 @@ class Mozc private constructor(val profile: File) {
         @Volatile
         private var instance: Mozc? = null
 
-        fun get(context: Context): Mozc = instance ?: synchronized(this) { instance ?: load(context.applicationContext).also { instance = it } }
+        fun get(context: Context): Mozc? = instance ?: synchronized(this) { instance ?: load(context.applicationContext)?.also { instance = it } }
 
-        private fun load(context: Context): Mozc {
+        private fun load(context: Context): Mozc? {
             val dir = context.noBackupFilesDir
             val data = File(dir, "mozc.data")
-            val installed = context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
-            if (data.lastModified() < installed) {
+            val pm = context.packageManager
+            val name = "${context.packageName}.ja"
+            val pack = runCatching { pm.getPackageInfo(name, 0) }.getOrNull()?.takeIf {
+                it.versionName == BuildConfig.MOZC && pm.checkSignatures(context.packageName, name) == PackageManager.SIGNATURE_MATCH
+            }
+            if (pack == null) {
+                data.delete()
+                return null
+            }
+            if (data.lastModified() < pack.lastUpdateTime) {
                 val tmp = File(dir, "mozc.data.tmp")
-                context.assets.open("mozc.data").use { src -> tmp.outputStream().use(src::copyTo) }
+                context.createPackageContext(name, 0).assets.open("mozc.data").use { src -> tmp.outputStream().use(src::copyTo) }
                 tmp.renameTo(data)
             }
             val profile = File(dir, "mozc").apply { mkdirs() }

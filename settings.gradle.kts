@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "henkandx"
 
-include(":app", ":core", ":engine:mozc", ":engine:mozc:proto")
+include(":app", ":core", ":engine:mozc", ":engine:mozc:proto", ":packs:ja")

@@ -29,17 +29,6 @@ android {
         ndk.abiFilters += "arm64-v8a"
     }
 
-    signingConfigs {
-        providers.environmentVariable("KEYSTORE").orNull?.let { keystore ->
-            create("release") {
-                storeFile = file(keystore)
-                storePassword = providers.environmentVariable("KEYSTORE_PASSWORD").get()
-                keyAlias = providers.environmentVariable("KEY_ALIAS").get()
-                keyPassword = providers.environmentVariable("KEY_PASSWORD").get()
-            }
-        }
-    }
-
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -48,7 +37,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.findByName("release")
         }
     }
 

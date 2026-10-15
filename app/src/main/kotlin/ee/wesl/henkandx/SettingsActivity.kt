@@ -2,7 +2,9 @@ package ee.wesl.henkandx
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -22,6 +24,7 @@ class SettingsActivity : Activity() {
     private lateinit var words: LinearLayout
     private lateinit var reading: EditText
     private lateinit var word: EditText
+    private var missing = false
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -38,11 +41,15 @@ class SettingsActivity : Activity() {
             },
         )
         thread {
-            mozc = Mozc.get(this)
-            dictionary = MozcDictionary(mozc)
-            val learning = !mozc.incognito
-            runOnUiThread { build(column, learning) }
+            val mozc = Mozc.get(this)
+            val learning = mozc?.incognito == false
+            runOnUiThread { build(column, mozc, learning) }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (missing) thread { if (Mozc.get(this) != null) runOnUiThread(::recreate) }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -52,8 +59,17 @@ class SettingsActivity : Activity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun build(column: LinearLayout, learning: Boolean) {
+    private fun build(column: LinearLayout, mozc: Mozc?, learning: Boolean) {
         column.addView(button(R.string.keyboard_settings) { startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)) })
+        column.visibility = View.VISIBLE
+        if (mozc == null) {
+            missing = true
+            column.addView(TextView(this).apply { setText(R.string.pack_missing) })
+            column.addView(button(R.string.get_pack) { get("$packageName.ja") })
+            return
+        }
+        this.mozc = mozc
+        dictionary = MozcDictionary(mozc)
         column.addView(
             Switch(this).apply {
                 setText(R.string.learn)
@@ -95,7 +111,12 @@ class SettingsActivity : Activity() {
         column.addView(words)
         list()
         prefill()
-        column.visibility = View.VISIBLE
+    }
+
+    private fun get(pack: String) = try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pack")))
+    } catch (_: ActivityNotFoundException) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/wesl-ee/henkan-dx/releases/latest/download/$pack.apk")))
     }
 
     private fun prefill() {

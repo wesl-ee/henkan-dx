@@ -57,7 +57,10 @@ jobs:
 
       - name: verify
         run: |
-          cd app/build/outputs/apk/release
+          mkdir dist
+          install -m644 app/build/outputs/apk/release/app-release.apk dist/ee.wesl.henkandx.apk
+          install -m644 packs/ja/build/outputs/apk/release/ja-release.apk dist/ee.wesl.henkandx.ja.apk
+          cd dist
           for apk in ./*.apk; do "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify "$apk"; done
           sha256sum -- *.apk > SHA256SUMS
 
@@ -70,4 +73,4 @@ jobs:
           flags=()
           [[ $version == 0.0.* ]] && flags+=(--prerelease)
           gh release create "$TAG" "${flags[@]}" --title "$TAG" --generate-notes \
-            app/build/outputs/apk/release/*.apk app/build/outputs/apk/release/SHA256SUMS
+            dist/*

@@ -48,7 +48,7 @@ class DebugActivity : Activity() {
 
         thread {
             val text = runCatching {
-                val mozc = Mozc.get(this)
+                val mozc = checkNotNull(Mozc.get(this)) { "no ja pack" }
                 if (intent.hasExtra("incognito")) mozc.incognito = intent.getBooleanExtra("incognito", false)
                 "mozc ${mozc.dataVersion} · session ${mozc.eval(Input.newBuilder().setType(Input.CommandType.CREATE_SESSION)).id.toULong()}"
             }.getOrElse { "mozc failed: $it" }
