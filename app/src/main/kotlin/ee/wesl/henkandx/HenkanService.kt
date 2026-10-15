@@ -46,6 +46,8 @@ class HenkanService : InputMethodService() {
     private var langTap = false
     private lateinit var sym: Sym
 
+    private val kana get() = field == Field.Kana && japanese && engine != null
+
     private enum class Field(val label: String) { Kana("あ"), Latin("A"), Locked("⚿") }
 
     override fun onCreate() {
@@ -127,7 +129,7 @@ class HenkanService : InputMethodService() {
                 metas[keyCode]?.let { pressed[key.modifier] = event.deviceId to it }
             }
 
-            Key.Sym -> true.also { if (event.repeatCount == 0) sym.toggle(if (field == Field.Kana && japanese) 1 else 0) }
+            Key.Sym -> true.also { if (event.repeatCount == 0) sym.toggle(if (kana) 1 else 0) }
 
             Key.Lang -> true.also {
                 if (event.repeatCount == 0) langTap = true
@@ -177,7 +179,7 @@ class HenkanService : InputMethodService() {
             toggle()
             return consume(keyCode)
         }
-        if (ctrl && code == profile.register && field != Field.Locked) {
+        if (ctrl && code == profile.register && field != Field.Locked && engine != null) {
             register()
             return consume(keyCode)
         }
@@ -219,7 +221,7 @@ class HenkanService : InputMethodService() {
             suggesting -> Stroke.Press(Special.Space)
             else -> specials[code]?.let { Stroke.Press(it, shift) } ?: char?.let(Stroke::Char)
         }
-        val snapshot = stroke?.let { engine?.takeIf { field == Field.Kana && japanese && !ctrl }?.send(it) }
+        val snapshot = stroke?.let { engine?.takeIf { kana && !ctrl }?.send(it) }
         when {
             snapshot != null -> render(snapshot)
             ctrl -> editor.send(code, meta or KeyEvent.META_CTRL_ON)
@@ -236,6 +238,7 @@ class HenkanService : InputMethodService() {
     }
 
     private fun toggle() {
+        if (engine == null) return
         flush()
         japanese = !japanese
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
@@ -287,7 +290,7 @@ class HenkanService : InputMethodService() {
     }
 
     private fun refresh() {
-        strip?.show(modifiers, if (field == Field.Kana && (!japanese || engine == null)) Field.Latin.label else field.label, page, sym.grid)
+        strip?.show(modifiers, if (field == Field.Kana && !kana) Field.Latin.label else field.label, page, sym.grid)
     }
 
     private companion object {
