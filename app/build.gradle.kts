@@ -1,5 +1,3 @@
-import com.android.build.api.variant.FilterConfiguration.FilterType
-
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -16,8 +14,6 @@ val (x, y, z) = tag?.take(3)?.map(String::toInt) ?: listOf(0, 0, 1)
 val release = tag?.get(3) == "0"
 val sha = tag?.get(4) ?: describe.ifEmpty { "unknown" }
 val semver = "$x.$y.$z" + if (release) "" else "-dev+$sha"
-val code = (x * 10000 + y * 100 + z) * 10
-val abis = listOf("arm64-v8a", "x86_64")
 
 android {
     namespace = "ee.wesl.henkandx"
@@ -29,7 +25,8 @@ android {
         minSdk = 26
         targetSdk = 37
         versionName = semver
-        versionCode = code
+        versionCode = x * 10000 + y * 100 + z
+        ndk.abiFilters += "arm64-v8a"
     }
 
     signingConfigs {
@@ -55,13 +52,6 @@ android {
         }
     }
 
-    splits.abi {
-        isEnable = true
-        reset()
-        include(*abis.toTypedArray())
-        isUniversalApk = true
-    }
-
     sourceSets {
         getByName("main") {
             assets.directories += "../profiles"
@@ -69,13 +59,6 @@ android {
     }
 
     buildFeatures.buildConfig = true
-}
-
-androidComponents.onVariants { variant ->
-    variant.outputs.forEach { output ->
-        val abi = output.filters.find { it.filterType == FilterType.ABI }?.identifier
-        output.versionCode.set(code + abis.indexOf(abi) + 1)
-    }
 }
 
 dependencies {

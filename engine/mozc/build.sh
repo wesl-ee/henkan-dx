@@ -11,7 +11,7 @@ declare -A target=(
   [x86_64]=//android/jni:mozc.x86_64
   [armeabi-v7a]=//android/jni:mozc.arm32
 )
-read -ra abis <<<"${ABIS:-arm64-v8a x86_64}"
+read -ra abis <<<"${ABIS:-arm64-v8a}"
 android=(--config oss_android --config release_build)
 data=//data_manager/oss:mozc_dataset_for_oss
 

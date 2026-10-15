@@ -12,10 +12,7 @@
   python3,
   stdenv,
   zlib,
-  abis ? [
-    "arm64-v8a"
-    "x86_64"
-  ],
+  abis ? [ "arm64-v8a" ],
 }:
 let
   bazelPackage = callPackage "${path}/pkgs/by-name/ba/bazel_9/build-support/bazelPackage.nix" { };
