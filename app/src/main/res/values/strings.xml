@@ -5,7 +5,9 @@
     <string name="subtype_en">English (US)</string>
     <string name="keyboard_settings">Open Keyboard Settings</string>
     <string name="pack_missing">Japanese input requires the 日本語 language pack to be installed.</string>
-    <string name="get_pack">Get the Japanese Language Pack</string>
+    <string name="manage_packs">Manage Language Packs</string>
+    <string name="install_ja">Install the Japanese Pack</string>
+    <string name="uninstall_ja">Uninstall the Japanese Pack</string>
     <string name="learn">Learning from my typing</string>
     <string name="learn_note">Password fields are never learned from.</string>
     <string name="forget">Erase all keyboard learning</string>

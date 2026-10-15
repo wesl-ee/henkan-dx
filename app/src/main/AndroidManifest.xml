@@ -23,6 +23,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".PacksActivity"
+            android:exported="false"
+            android:theme="@style/Settings" />
+
         <service
             android:name=".HenkanService"
             android:exported="true"

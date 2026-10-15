@@ -2,9 +2,7 @@ package ee.wesl.henkandx
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -61,11 +59,11 @@ class SettingsActivity : Activity() {
     @Suppress("DEPRECATION")
     private fun build(column: LinearLayout, mozc: Mozc?, learning: Boolean) {
         column.addView(button(R.string.keyboard_settings) { startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)) })
+        column.addView(button(R.string.manage_packs) { startActivity(Intent(this, PacksActivity::class.java)) })
         column.visibility = View.VISIBLE
         if (mozc == null) {
             missing = true
             column.addView(TextView(this).apply { setText(R.string.pack_missing) })
-            column.addView(button(R.string.get_pack) { get("$packageName.ja") })
             return
         }
         this.mozc = mozc
@@ -111,12 +109,6 @@ class SettingsActivity : Activity() {
         column.addView(words)
         list()
         prefill()
-    }
-
-    private fun get(pack: String) = try {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$pack")))
-    } catch (_: ActivityNotFoundException) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/wesl-ee/henkan-dx/releases/latest/download/$pack.apk")))
     }
 
     private fun prefill() {
