@@ -52,6 +52,8 @@ Other symbols are accessible with the "Sym" key.
 
 ### Other keyboards
 
+Support is best-effort
+
 - Ctrl+Space switches between あ and A
 - There are no fn shortcuts yet. Use the arrow keys if your keyboard has them
 
@@ -66,7 +68,6 @@ Other symbols are accessible with the "Sym" key.
 
 - Japanese conversion is Mozc
 - Mozc runs with its desktop MS-IME style keymap
-- Kotlin with plain Android Views and no AndroidX
 
 ## Building
 
@@ -88,7 +89,8 @@ nix develop opens a shell with the JDK and the Android SDK.
 nix develop
 ```
 
-Without Nix, engine/mozc/build.sh builds libmozc.so and mozc.data (it needs bazelisk, Python 3 and a C++ compiler) and then Gradle builds the APK
+Without Nix, engine/mozc/build.sh builds libmozc.so and mozc.data (it needs
+bazelisk, Python 3 and a C++ compiler) and then Gradle builds the APK
 
 ```sh
 engine/mozc/build.sh
