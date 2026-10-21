@@ -10,6 +10,7 @@ from titan import script
 
 APP = "ee.wesl.henkandx.debug"
 IME = f"{APP}/ee.wesl.henkandx.HenkanService"
+JA = "-180584119"
 
 CASES = [
     ("email", "h e l l o space lshift t i t a n", "hello Titan"),
@@ -23,6 +24,7 @@ CASES = [
     ("text", "sym a sym s", "・〜"),
     ("email", "sym a sym sym b", "&b"),
     ("visible password", "k a n a", "kana"),
+    ("text", "rshift kill k a", "ka"),
 ]
 
 
@@ -54,6 +56,7 @@ def main():
 
 
 def run():
+    adb("settings", "put", "secure", "selected_input_method_subtype", JA)
     adb("ime", "set", IME)
     time.sleep(3)
     fields = {}
@@ -63,9 +66,15 @@ def run():
             fields[attr(node, "hint")] = ((x1 + x2) // 2, (y1 + y2) // 2)
     failed = 0
     for field, keys, want in CASES:
-        adb("input", "tap", *map(str, fields[field]))
-        time.sleep(0.5)
-        press("+fn a -fn del ~800 " + keys)
+        for i, part in enumerate(keys.split(" kill ")):
+            if i:
+                adb("run-as", APP, "kill", adb("pidof", APP).strip())
+                time.sleep(2)
+                adb("am", "start", "-W", "-n", f"{APP}/ee.wesl.henkandx.DebugActivity")
+                time.sleep(3)
+            adb("input", "tap", *map(str, fields[field]))
+            time.sleep(0.5)
+            press("+fn a -fn del ~800 " + part)
         time.sleep(0.5)
         focused = next(n for n in nodes() if 'focused="true"' in n and "EditText" in n)
         got = "" if attr(focused, "text") == field else attr(focused, "text")

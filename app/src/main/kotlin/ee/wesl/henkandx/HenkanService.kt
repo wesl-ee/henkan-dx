@@ -53,6 +53,7 @@ class HenkanService : InputMethodService() {
     override fun onCreate() {
         super.onCreate()
         profile = loadProfile(this)
+        japanese = getSystemService(InputMethodManager::class.java).currentInputMethodSubtype?.japanese ?: true
         sym = Sym(assets.open("sym.txt").bufferedReader().use { it.readText() }.trim().split("\n\n").map { it.lines() })
         load()
     }
@@ -246,7 +247,7 @@ class HenkanService : InputMethodService() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
         val imm = getSystemService(InputMethodManager::class.java)
         val ime = imm.enabledInputMethodList.find { it.packageName == packageName } ?: return
-        imm.getEnabledInputMethodSubtypeList(ime, true).find { it.japanese == japanese }?.let { switchInputMethod(ime.id, it) }
+        (0 until ime.subtypeCount).map(ime::getSubtypeAt).find { it.japanese == japanese }?.let { switchInputMethod(ime.id, it) }
     }
 
     override fun onCurrentInputMethodSubtypeChanged(subtype: InputMethodSubtype) {

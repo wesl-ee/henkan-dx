@@ -3,6 +3,7 @@ package ee.wesl.henkandx
 import android.app.Activity
 import android.os.Bundle
 import android.text.InputType.*
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -42,6 +43,7 @@ class DebugActivity : Activity() {
         setContentView(
             ScrollView(this).apply {
                 fitsSystemWindows = true
+                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
                 addView(column)
             },
         )
