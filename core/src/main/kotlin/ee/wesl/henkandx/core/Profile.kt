@@ -21,8 +21,9 @@ data class Profile(
     val scanCodes: Map<Int, Key> = emptyMap(),
     val nav: Map<Int, Int> = emptyMap(),
     val register: Int? = null,
+    val compose: Int? = null,
 ) {
     fun resolve(keyCode: Int, scanCode: Int): Key? = scanCodes[scanCode] ?: keyCodes[keyCode]
 
-    operator fun plus(other: Profile) = Profile(keyCodes + other.keyCodes, scanCodes + other.scanCodes, nav + other.nav, other.register ?: register)
+    operator fun plus(other: Profile) = Profile(keyCodes + other.keyCodes, scanCodes + other.scanCodes, nav + other.nav, other.register ?: register, other.compose ?: compose)
 }

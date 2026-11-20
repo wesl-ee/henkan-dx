@@ -19,6 +19,7 @@ import kotlin.math.sqrt
 class Strip(context: Context) : View(context) {
     private var lit = emptyMap<Modifier, Modifiers.State>()
     private var label = ""
+    private var compose: String? = null
     private var page: Page? = null
     private var grid: List<List<Pair<Char, String>>>? = null
     private val hits = mutableListOf<ClosedFloatingPointRange<Float>>()
@@ -34,6 +35,7 @@ class Strip(context: Context) : View(context) {
     private val accent: Int
     private val glyphs = mapOf(Modifier.Shift to "⇧", Modifier.Alt to "⌥", Modifier.Ctrl to "⌃")
         .mapValues { (m, glyph) -> if (paint.hasGlyph(glyph)) glyph else m.name.lowercase() }
+    private val composeGlyph = if (paint.hasGlyph("⎄")) "⎄" else "compose"
 
     init {
         context.obtainStyledAttributes(
@@ -58,12 +60,13 @@ class Strip(context: Context) : View(context) {
         }
     }
 
-    fun show(modifiers: Modifiers, label: String, page: Page?, grid: List<List<Pair<Char, String>>>?) {
+    fun show(modifiers: Modifiers, label: String, page: Page?, grid: List<List<Pair<Char, String>>>?, compose: String?) {
         val lit = Modifier.entries.associateWith(modifiers::shown).filterValues { it != Modifiers.State.Off }
-        if (lit != this.lit || label != this.label || page != this.page || grid != this.grid) {
+        if (lit != this.lit || label != this.label || compose != this.compose || page != this.page || grid != this.grid) {
             if (grid?.size != this.grid?.size) requestLayout()
             this.lit = lit
             this.label = label
+            this.compose = compose
             this.page = page
             this.grid = grid
             invalidate()
@@ -113,6 +116,12 @@ class Strip(context: Context) : View(context) {
             if (locked) canvas.drawRect(x, baseline + 3 * dp, x + width, baseline + 4.5f * dp, paint)
             x += width + 10 * dp
         }
+        compose?.let {
+            val text = composeGlyph + it.visible
+            paint.color = accent
+            canvas.drawText(text, x, baseline, paint)
+            x += paint.measureText(text) + 10 * dp
+        }
         page?.let { drawPage(canvas, it, x + 8 * dp, baseline, width - edge) }
     }
 
@@ -122,7 +131,8 @@ class Strip(context: Context) : View(context) {
         small.color = dim
         canvas.drawText(more, right, baseline, small)
         val gap = 16 * dp
-        val widths = page.items.mapIndexed { i, item -> small.measureText("${i + 1}") + 3 * dp + paint.measureText(item) }
+        val keys = page.items.indices.map { page.labels?.get(it)?.visible ?: "${it + 1}" }
+        val widths = page.items.mapIndexed { i, item -> small.measureText(keys[i]) + 3 * dp + paint.measureText(item) }
         val focus = page.focus ?: 0
         // Scroll the row so the focused candidate is always visible
         val end = left + widths.take(focus + 1).sum() + gap * focus
@@ -132,8 +142,8 @@ class Strip(context: Context) : View(context) {
         page.items.forEachIndexed { i, item ->
             hits += x..x + widths[i] + gap
             small.color = dim
-            canvas.drawText("${i + 1}", x, baseline, small)
-            val start = x + small.measureText("${i + 1}") + 3 * dp
+            canvas.drawText(keys[i], x, baseline, small)
+            val start = x + small.measureText(keys[i]) + 3 * dp
             paint.color = if (i == page.focus) accent else ink
             canvas.drawText(item, start, baseline, paint)
             if (i == page.focus) canvas.drawRect(start, baseline + 3 * dp, x + widths[i], baseline + 4.5f * dp, paint)
@@ -159,6 +169,8 @@ class Strip(context: Context) : View(context) {
             }
         }
     }
+
+    private val String.visible get() = replace(' ', '␣')
 
     private companion object {
         const val BAR = 36

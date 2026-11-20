@@ -12,6 +12,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodSubtype
+import ee.wesl.henkandx.core.Compose
 import ee.wesl.henkandx.core.Engine
 import ee.wesl.henkandx.core.Key
 import ee.wesl.henkandx.core.Modifier
@@ -45,6 +46,7 @@ class HenkanService : InputMethodService() {
     private var page: Page? = null
     private var langTap = false
     private lateinit var sym: Sym
+    private lateinit var compose: Compose
 
     private val kana get() = field == Field.Kana && japanese && engine != null
 
@@ -55,6 +57,7 @@ class HenkanService : InputMethodService() {
         profile = loadProfile(this)
         japanese = getSystemService(InputMethodManager::class.java).currentInputMethodSubtype?.japanese ?: true
         sym = Sym(assets.open("sym.txt").bufferedReader().use { it.readText() }.trim().split("\n\n").map { it.lines() })
+        compose = Compose(assets.open("compose.tsv").bufferedReader().use { it.readLines() })
         load()
     }
 
@@ -76,7 +79,7 @@ class HenkanService : InputMethodService() {
     ).also {
         strip = it
         it.onPick = { index ->
-            engine?.pick(index)?.let(::render)
+            if (compose.pending != null) compose.pick(index)?.let(::emit) else engine?.pick(index)?.let(::render)
             refresh()
         }
         refresh()
@@ -95,6 +98,7 @@ class HenkanService : InputMethodService() {
         if (!restarting) {
             modifiers.reset()
             pressed.clear()
+            compose.close()
         }
         val type = attribute?.inputType ?: InputType.TYPE_NULL
         val options = attribute?.imeOptions ?: 0
@@ -184,6 +188,10 @@ class HenkanService : InputMethodService() {
             register()
             return consume(keyCode)
         }
+        if (ctrl && code == profile.compose) {
+            compose.start()
+            return consume(keyCode)
+        }
 
         var meta = 0
         if (shift) meta = meta or if (caps) KeyEvent.META_CAPS_LOCK_ON else KeyEvent.META_SHIFT_ON
@@ -198,14 +206,22 @@ class HenkanService : InputMethodService() {
                 KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_DEL -> true.also { sym.close() }
 
                 else -> sym.pick(event.keyCharacterMap.get(keyCode, 0).toChar())?.also {
-                    engine?.takeIf { kana }?.send(Stroke.Char(it.codePointAt(0)))?.let(::render) ?: run {
-                        flush()
-                        editor.commit(it)
-                    }
+                    if (compose.pending != null) compose.feed(it)?.let(::emit) else emit(it)
                 } != null
             }
             if (handled) return consume(keyCode)
             sym.close()
+        }
+
+        // Any key that cannot extend the sequence cancels it and then acts as usual
+        if (compose.pending != null) {
+            val handled = when {
+                code == KeyEvent.KEYCODE_ESCAPE -> true.also { compose.close() }
+                code == KeyEvent.KEYCODE_DEL -> true.also { compose.back() }
+                char != null -> true.also { compose.feed(Character.toChars(char).concatToString())?.let(::emit) }
+                else -> false.also { compose.close() }
+            }
+            if (handled) return consume(keyCode)
         }
 
         val resize = specials[profile.nav[keyCode]]?.takeIf {
@@ -274,6 +290,13 @@ class HenkanService : InputMethodService() {
         startActivity(intent)
     }
 
+    private fun emit(text: String) {
+        engine?.takeIf { kana && text.codePointCount(0, text.length) == 1 }?.send(Stroke.Char(text.codePointAt(0)))?.let(::render) ?: run {
+            flush()
+            editor.commit(text)
+        }
+    }
+
     private fun flush() {
         engine?.takeIf { composing }?.let { render(it.submit()) }
     }
@@ -293,7 +316,7 @@ class HenkanService : InputMethodService() {
     }
 
     private fun refresh() {
-        strip?.show(modifiers, if (field == Field.Kana && !kana) Field.Latin.label else field.label, page, sym.grid)
+        strip?.show(modifiers, if (field == Field.Kana && !kana) Field.Latin.label else field.label, compose.page ?: page, sym.grid, compose.pending)
     }
 
     private companion object {

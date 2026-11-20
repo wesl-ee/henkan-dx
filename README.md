@@ -38,6 +38,7 @@ Other symbols are accessible with the "Sym" key.
 | ⇧+S/F               | Shorten/lengthen clause                  |
 | fn+Q                | Cancel conversion                        |
 | fn+B                | Add word to user dictionary              |
+| fn+C                | Compose, e.g. fn+C then 'e for é         |
 | Sym                 | Symbol page                              |
 
 ⇧, alt and fn are sticky: tap once for the next key and twice to lock.

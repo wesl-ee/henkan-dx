@@ -19,11 +19,14 @@ fun loadProfile(context: Context): Profile {
                 it.codes("keycodes", KeyEvent::keyCodeFromString, Key::of),
                 it.codes("scancodes", String::toInt, Key::of),
                 it.codes("nav", KeyEvent::keyCodeFromString, KeyEvent::keyCodeFromString),
-                it.optString("register").takeIf(String::isNotEmpty)?.let(KeyEvent::keyCodeFromString),
+                it.key("register"),
+                it.key("compose"),
             )
         }
         .fold(Profile(), Profile::plus)
 }
+
+private fun JSONObject.key(field: String) = optString(field).takeIf(String::isNotEmpty)?.let(KeyEvent::keyCodeFromString)
 
 private fun <V> JSONObject.codes(field: String, key: (String) -> Int, value: (String) -> V): Map<Int, V> {
     val map = optJSONObject(field) ?: return emptyMap()

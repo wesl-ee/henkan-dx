@@ -14,5 +14,6 @@
     "KEYCODE_F": "KEYCODE_DPAD_RIGHT",
     "KEYCODE_Q": "KEYCODE_ESCAPE"
   },
-  "register": "KEYCODE_B"
+  "register": "KEYCODE_B",
+  "compose": "KEYCODE_C"
 }

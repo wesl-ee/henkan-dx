@@ -16,4 +16,5 @@ data class Page(
     val focus: Int?,
     val index: Int,
     val count: Int,
+    val labels: List<String>? = null,
 )
